@@ -15,6 +15,12 @@ import {
   Baby,
   Smile,
   Eye,
+  Ear,
+  Flame,
+  Pill,
+  Thermometer,
+  Scissors,
+  SmilePlus,
 } from 'lucide-react';
 import { symptomService, doctorService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -63,6 +69,16 @@ const Home = () => {
     'General Medicine': Stethoscope,
     Psychiatry: Smile,
     Ophthalmology: Eye,
+    'ENT (Otolaryngology)': Ear,
+    Gastroenterology: Flame,
+    Pulmonology: Activity,
+    'Endocrinology & Diabetology': Pill,
+    'Nephrology & Urology': Thermometer,
+    'Gynecology & Obstetrics': HeartPulse,
+    Oncology: ShieldCheck,
+    'Rheumatology & Immunology': Activity,
+    'General Surgery': Scissors,
+    'Dentistry & Maxillofacial': SmilePlus,
   };
 
   return (

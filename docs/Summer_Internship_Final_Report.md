@@ -178,9 +178,37 @@ The Smart Doctor Appointment & Clinical Guidance System successfully fulfills al
 | `GET` | `/api/admin/appointments` | Admin | Audit all hospital appointments |
 | `POST` | `/api/admin/doctors` | Admin | Create doctor account and profile |
 
-### Appendix B: Demo Credentials for Reviewers
+### Appendix B: Comprehensive 24 Doctors and Demo Credentials
+| Doctor Name | Department / Specialty | Login ID | Password | Experience & Fee |
+|---|---|---|---|---|
+| **Dr. Rajesh Kumar** | Cardiology | `dr.rajesh` | `doc123` | 14 yrs • ₹750 |
+| **Dr. Aarav Nair** | Neurology | `dr.aarav` | `doc123` | 12 yrs • ₹800 |
+| **Dr. Priya Nair** | Dermatology | `dr.priya` | `doc123` | 9 yrs • ₹600 |
+| **Dr. Sarah George** | Pediatrics | `dr.sarah` | `doc123` | 10 yrs • ₹500 |
+| **Dr. Aditya Paul** | Orthopedics | `dr.aditya` | `doc123` | 15 yrs • ₹700 |
+| **Dr. Meera Thomas** | General Medicine | `dr.meera` | `doc123` | 11 yrs • ₹450 |
+| **Dr. Ananya Das** | Endocrinology & Diabetology | `dr.ananya` | `doc123` | 10 yrs • ₹650 |
+| **Dr. Nikhil Varma** | Ophthalmology | `dr.nikhil` | `doc123` | 8 yrs • ₹550 |
+| **Dr. Vivek Kumar** | Gastroenterology | `dr.vivek` | `doc123` | 13 yrs • ₹750 |
+| **Dr. Diya Mathew** | Pulmonology | `dr.diya.mathew` | `doc123` | 11 yrs • ₹650 |
+| **Dr. Anand Menon** | ENT (Otolaryngology) | `dr.anand` | `doc123` | 14 yrs • ₹550 |
+| **Dr. Rahul Menon** | Nephrology & Urology | `dr.rahul` | `doc123` | 12 yrs • ₹700 |
+| **Dr. Neha Joseph** | Psychiatry | `dr.neha` | `doc123` | 13 yrs • ₹650 |
+| **Dr. Alan George** | Cardiology | `dr.alan` | `doc123` | 16 yrs • ₹800 |
+| **Dr. Diya Thomas** | Gynecology & Obstetrics | `dr.diya.thomas` | `doc123` | 12 yrs • ₹600 |
+| **Dr. Joel Mathew** | Oncology | `dr.joel` | `doc123` | 15 yrs • ₹900 |
+| **Dr. Kevin Mathew** | Rheumatology & Immunology | `dr.kevin.mathew` | `doc123` | 10 yrs • ₹650 |
+| **Dr. Sara Paul** | Dermatology | `dr.sara` | `doc123` | 8 yrs • ₹550 |
+| **Dr. Thomas Joseph** | Orthopedics | `dr.thomas` | `doc123` | 17 yrs • ₹750 |
+| **Dr. Riya Nair** | Pediatrics | `dr.riya` | `doc123` | 7 yrs • ₹450 |
+| **Dr. Fathima Ali** | General Surgery | `dr.fathima` | `doc123` | 11 yrs • ₹650 |
+| **Dr. Kevin Paul** | Neurology | `dr.kevin.paul` | `doc123` | 9 yrs • ₹700 |
+| **Dr. Maria George** | General Medicine | `dr.maria` | `doc123` | 13 yrs • ₹500 |
+| **Dr. David Thomas** | Dentistry & Maxillofacial | `dr.david` | `doc123` | 10 yrs • ₹450 |
+
+### Appendix C: Test Accounts for Patients & Admin
 | Role | Login ID / Username | Password | Notes |
 |---|---|---|---|
 | **Patient** | `patient1` | `pat123` | Patient: Ananya Menon (Pre-loaded with bookings) |
-| **Doctor** | `dr.rajesh` | `doc123` | Doctor: Dr. Rajesh Kumar (Cardiology Specialist) |
+| **Patient** | `patient2` | `pat123` | Patient: Arjun Krishnan (Pre-loaded with completed Rx) |
 | **Admin** | `admin` | `admin123` | Hospital Administrator (Full system management) |

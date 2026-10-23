@@ -252,11 +252,42 @@ npm run dev
 
 For easy evaluation, use any of these pre-seeded demo credentials or click the **Instant Demo Login** buttons on the login screen:
 
+### Core Evaluation Accounts
 | Role | Username / Login ID | Password | Account Details & Available Views |
 |---|---|---|---|
 | **Patient** | `patient1` | `pat123` | **Ananya Menon:** View booked consultations, cancel appointments, read doctor's prescription notes. |
 | **Doctor** | `dr.rajesh` | `doc123` | **Dr. Rajesh Kumar (Cardiology):** View patient queue, confirm consultations, write clinical notes & prescriptions. |
 | **Admin** | `admin` | `admin123` | **Hospital Administrator:** Hospital KPI metrics, audit all bookings, register new medical practitioners. |
+
+### Complete 24 Specialists Roster (18 Medical Departments)
+All 24 physicians are pre-seeded in the database with password `doc123`:
+
+| Doctor Name | Department / Specialty | Username / Login ID | Experience & Fee |
+|---|---|---|---|
+| **Dr. Rajesh Kumar** | Cardiology | `dr.rajesh` | 14 yrs • ₹750 |
+| **Dr. Aarav Nair** | Neurology | `dr.aarav` | 12 yrs • ₹800 |
+| **Dr. Priya Nair** | Dermatology | `dr.priya` | 9 yrs • ₹600 |
+| **Dr. Sarah George** | Pediatrics | `dr.sarah` | 10 yrs • ₹500 |
+| **Dr. Aditya Paul** | Orthopedics | `dr.aditya` | 15 yrs • ₹700 |
+| **Dr. Meera Thomas** | General Medicine | `dr.meera` | 11 yrs • ₹450 |
+| **Dr. Ananya Das** | Endocrinology & Diabetology | `dr.ananya` | 10 yrs • ₹650 |
+| **Dr. Nikhil Varma** | Ophthalmology | `dr.nikhil` | 8 yrs • ₹550 |
+| **Dr. Vivek Kumar** | Gastroenterology | `dr.vivek` | 13 yrs • ₹750 |
+| **Dr. Diya Mathew** | Pulmonology | `dr.diya.mathew` | 11 yrs • ₹650 |
+| **Dr. Anand Menon** | ENT (Otolaryngology) | `dr.anand` | 14 yrs • ₹550 |
+| **Dr. Rahul Menon** | Nephrology & Urology | `dr.rahul` | 12 yrs • ₹700 |
+| **Dr. Neha Joseph** | Psychiatry | `dr.neha` | 13 yrs • ₹650 |
+| **Dr. Alan George** | Cardiology | `dr.alan` | 16 yrs • ₹800 |
+| **Dr. Diya Thomas** | Gynecology & Obstetrics | `dr.diya.thomas` | 12 yrs • ₹600 |
+| **Dr. Joel Mathew** | Oncology | `dr.joel` | 15 yrs • ₹900 |
+| **Dr. Kevin Mathew** | Rheumatology & Immunology | `dr.kevin.mathew` | 10 yrs • ₹650 |
+| **Dr. Sara Paul** | Dermatology | `dr.sara` | 8 yrs • ₹550 |
+| **Dr. Thomas Joseph** | Orthopedics | `dr.thomas` | 17 yrs • ₹750 |
+| **Dr. Riya Nair** | Pediatrics | `dr.riya` | 7 yrs • ₹450 |
+| **Dr. Fathima Ali** | General Surgery | `dr.fathima` | 11 yrs • ₹650 |
+| **Dr. Kevin Paul** | Neurology | `dr.kevin.paul` | 9 yrs • ₹700 |
+| **Dr. Maria George** | General Medicine | `dr.maria` | 13 yrs • ₹500 |
+| **Dr. David Thomas** | Dentistry & Maxillofacial | `dr.david` | 10 yrs • ₹450 |
 
 ---
 

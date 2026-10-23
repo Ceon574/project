@@ -28,9 +28,9 @@ This Software Requirements Specification (SRS) defines the complete software, fu
 This document is authored for academic evaluators, technical mentors, project reviewers from ICT Academy of Kerala (ICTAK), software engineers, quality assurance testers, and healthcare administrators.
 
 ### 1.4 Project Scope
-The Smart Doctor Appointment System streamlines outpatient clinical scheduling through:
-1. **Interactive Clinical Symptom Triage:** A multi-symptom evaluation wizard that analyzes reported ailments, calculates an urgency index (`HIGH`, `MEDIUM`, `LOW`), displays critical warning signs, and automatically links patients to corresponding medical specialists.
-2. **Physician Directory & Live Slot Reservation:** Patients search doctors by medical specialty, experience, and fee, and select available 30-minute consultation slots.
+The Smart Doctor Appointment System streamlines outpatient clinical scheduling across 18 medical departments with 24 verified specialist physicians through:
+1. **Interactive Clinical Symptom Triage:** A multi-symptom evaluation wizard (22+ symptoms) that analyzes reported ailments, calculates an urgency index (`HIGH`, `MEDIUM`, `LOW`), displays critical warning signs, and automatically links patients to corresponding medical specialists across Cardiology, Neurology, Dermatology, Pediatrics, Orthopedics, General Medicine, Psychiatry, Ophthalmology, ENT, Gastroenterology, Pulmonology, Endocrinology, Nephrology, Gynecology, Oncology, Rheumatology, General Surgery, and Dentistry.
+2. **Physician Directory & Live Slot Reservation:** Patients search 24+ doctors by medical specialty, experience, and fee, and select available 30-minute consultation slots.
 3. **Role-Based Portals:**
    - **Patient Portal:** Appointment booking, live status tracking (`pending`, `confirmed`, `completed`, `cancelled`), and access to physician consultation notes and prescriptions.
    - **Doctor Portal:** Consultation calendar management, appointment confirmation/rejection, availability slot creation, and clinical notes/prescription recording.
