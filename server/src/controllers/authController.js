@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const mockStore = require('../data/mockStore');
 
-// Helper to generate JWT token
 const generateToken = (id) => {
   return jwt.sign(
     { id },
@@ -24,6 +25,44 @@ exports.register = async (req, res, next) => {
       });
     }
 
+    if (mongoose.connection.readyState !== 1) {
+      const existing = mockStore.findUser(email);
+      if (existing) {
+        return res.status(409).json({
+          success: false,
+          message: 'A user with this email or username already exists',
+        });
+      }
+
+      const userRole = role === 'admin' ? 'admin' : (role === 'doctor' ? 'doctor' : 'patient');
+      const user = mockStore.createUser({
+        name,
+        email,
+        password,
+        role: userRole,
+        phone,
+        age,
+        gender,
+        address,
+      });
+
+      const token = generateToken(user._id);
+      return res.status(201).json({
+        success: true,
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          age: user.age,
+          gender: user.gender,
+          address: user.address,
+        },
+      });
+    }
+
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(409).json({
@@ -32,9 +71,7 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Patients only can self-register; doctors/admins created by admin
     const userRole = role === 'admin' ? 'admin' : (role === 'doctor' ? 'doctor' : 'patient');
-
     const user = await User.create({
       name,
       email: email.toLowerCase(),
@@ -47,7 +84,6 @@ exports.register = async (req, res, next) => {
     });
 
     const token = generateToken(user._id);
-
     res.status(201).json({
       success: true,
       token,
@@ -81,7 +117,32 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    // Support email or username
+    if (mongoose.connection.readyState !== 1) {
+      const user = mockStore.findUser(email);
+      if (!user || user.password !== password) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password',
+        });
+      }
+
+      const token = generateToken(user._id);
+      return res.status(200).json({
+        success: true,
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          age: user.age,
+          gender: user.gender,
+          address: user.address,
+        },
+      });
+    }
+
     const user = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { email: email }],
     });
@@ -102,7 +163,6 @@ exports.login = async (req, res, next) => {
     }
 
     const token = generateToken(user._id);
-
     res.status(200).json({
       success: true,
       token,
@@ -127,10 +187,9 @@ exports.login = async (req, res, next) => {
 // @access  Private
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
     res.status(200).json({
       success: true,
-      user,
+      user: req.user,
     });
   } catch (error) {
     next(error);
@@ -143,6 +202,18 @@ exports.getMe = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     const { name, phone, age, gender, address } = req.body;
+
+    if (mongoose.connection.readyState !== 1) {
+      const user = mockStore.findUserById(req.user._id);
+      if (user) {
+        if (name) user.name = name;
+        if (phone !== undefined) user.phone = phone;
+        if (age !== undefined) user.age = age;
+        if (gender !== undefined) user.gender = gender;
+        if (address !== undefined) user.address = address;
+      }
+      return res.status(200).json({ success: true, user: user || req.user });
+    }
 
     const fieldsToUpdate = {};
     if (name) fieldsToUpdate.name = name;

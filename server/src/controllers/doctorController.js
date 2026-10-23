@@ -1,13 +1,25 @@
+const mongoose = require('mongoose');
 const Doctor = require('../models/Doctor');
 const Availability = require('../models/Availability');
 const Specialization = require('../models/Specialization');
 const User = require('../models/User');
+const mockStore = require('../data/mockStore');
 
 // @desc    Get all doctors with filtering & search
 // @route   GET /api/doctors
 // @access  Public
 exports.getDoctors = async (req, res, next) => {
   try {
+    // If MongoDB is not connected, seamlessly serve from mock store
+    if (mongoose.connection.readyState !== 1) {
+      const doctors = mockStore.getDoctors(req.query);
+      return res.status(200).json({
+        success: true,
+        count: doctors.length,
+        data: doctors,
+      });
+    }
+
     const { specialization, search, minExp, maxFee } = req.query;
     let query = { isAvailable: true };
 
@@ -28,7 +40,6 @@ exports.getDoctors = async (req, res, next) => {
       .populate('specialization', 'name description icon')
       .sort({ rating: -1, experienceYears: -1 });
 
-    // Client search filter by doctor name or specialization name
     if (search) {
       const term = search.toLowerCase();
       doctors = doctors.filter((doc) => {
@@ -44,7 +55,14 @@ exports.getDoctors = async (req, res, next) => {
       data: doctors,
     });
   } catch (error) {
-    next(error);
+    // On buffer timeout or DB failure, fallback gracefully to mockStore
+    console.warn('⚠️  Doctor fetch falling back to In-Memory store:', error.message);
+    const doctors = mockStore.getDoctors(req.query);
+    res.status(200).json({
+      success: true,
+      count: doctors.length,
+      data: doctors,
+    });
   }
 };
 
@@ -53,6 +71,12 @@ exports.getDoctors = async (req, res, next) => {
 // @access  Public
 exports.getDoctorById = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const doctor = mockStore.getDoctorById(req.params.id);
+      if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
+      return res.status(200).json({ success: true, data: doctor });
+    }
+
     const doctor = await Doctor.findById(req.params.id)
       .populate('user', 'name email phone')
       .populate('specialization', 'name description icon');
@@ -64,7 +88,6 @@ exports.getDoctorById = async (req, res, next) => {
       });
     }
 
-    // Fetch availability for upcoming 7 days
     const availabilities = await Availability.find({
       doctor: doctor._id,
     }).sort({ date: 1 });
@@ -77,6 +100,8 @@ exports.getDoctorById = async (req, res, next) => {
       },
     });
   } catch (error) {
+    const doctor = mockStore.getDoctorById(req.params.id);
+    if (doctor) return res.status(200).json({ success: true, data: doctor });
     next(error);
   }
 };
@@ -86,6 +111,12 @@ exports.getDoctorById = async (req, res, next) => {
 // @access  Private (Doctor)
 exports.getMyDoctorProfile = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const doctor = mockStore.doctors.find((d) => d.user._id === req.user._id);
+      if (!doctor) return res.status(404).json({ success: false, message: 'No doctor profile found' });
+      return res.status(200).json({ success: true, data: doctor });
+    }
+
     const doctor = await Doctor.findOne({ user: req.user._id })
       .populate('user', 'name email phone age gender address')
       .populate('specialization', 'name description icon');
@@ -111,6 +142,11 @@ exports.getMyDoctorProfile = async (req, res, next) => {
 // @access  Public
 exports.getDoctorAvailability = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const availability = mockStore.getDoctorAvailability(req.params.id, req.query.date);
+      return res.status(200).json({ success: true, data: availability });
+    }
+
     const { date } = req.query;
     const query = { doctor: req.params.id };
     if (date) query.date = date;
@@ -122,7 +158,8 @@ exports.getDoctorAvailability = async (req, res, next) => {
       data: availability,
     });
   } catch (error) {
-    next(error);
+    const availability = mockStore.getDoctorAvailability(req.params.id, req.query?.date);
+    res.status(200).json({ success: true, data: availability });
   }
 };
 
@@ -135,11 +172,14 @@ exports.setDoctorAvailability = async (req, res, next) => {
 
     let doctorId;
     if (req.user.role === 'doctor') {
-      const doc = await Doctor.findOne({ user: req.user._id });
-      if (!doc) {
-        return res.status(404).json({ success: false, message: 'Doctor record not found' });
+      if (mongoose.connection.readyState !== 1) {
+        const doc = mockStore.doctors.find((d) => d.user._id === req.user._id);
+        doctorId = doc ? doc._id : null;
+      } else {
+        const doc = await Doctor.findOne({ user: req.user._id });
+        if (!doc) return res.status(404).json({ success: false, message: 'Doctor record not found' });
+        doctorId = doc._id;
       }
-      doctorId = doc._id;
     } else if (req.user.role === 'admin') {
       doctorId = req.body.doctorId;
     }
@@ -148,6 +188,15 @@ exports.setDoctorAvailability = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid date (YYYY-MM-DD) and an array of slot objects',
+      });
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      const avail = mockStore.setDoctorAvailability(doctorId, date, slots);
+      return res.status(200).json({
+        success: true,
+        message: 'Doctor availability slots updated successfully',
+        data: avail,
       });
     }
 

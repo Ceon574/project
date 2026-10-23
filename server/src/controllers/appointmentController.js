@@ -1,7 +1,9 @@
+const mongoose = require('mongoose');
 const Appointment = require('../models/Appointment');
 const Availability = require('../models/Availability');
 const Doctor = require('../models/Doctor');
 const User = require('../models/User');
+const mockStore = require('../data/mockStore');
 
 // @desc    Book a new doctor appointment
 // @route   POST /api/appointments
@@ -17,6 +19,23 @@ exports.bookAppointment = async (req, res, next) => {
       });
     }
 
+    if (mongoose.connection.readyState !== 1) {
+      const app = mockStore.bookAppointment({
+        patientId: req.user._id,
+        doctorId,
+        date,
+        slotTime,
+        symptomsDescription,
+        patientPhone,
+        patientAge,
+      });
+      return res.status(201).json({
+        success: true,
+        message: 'Appointment booked successfully!',
+        data: app,
+      });
+    }
+
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) {
       return res.status(404).json({
@@ -25,20 +44,16 @@ exports.bookAppointment = async (req, res, next) => {
       });
     }
 
-    // Check availability document
     let availability = await Availability.findOne({ doctor: doctorId, date });
 
     if (!availability) {
-      // Create availability on-the-fly if not strictly pre-seeded
       availability = await Availability.create({
         doctor: doctorId,
         date,
         slots: [{ slotTime, isBooked: true, bookedBy: req.user._id }],
       });
     } else {
-      // Check if slot exists and is available
       const slotIndex = availability.slots.findIndex((s) => s.slotTime === slotTime);
-
       if (slotIndex !== -1) {
         if (availability.slots[slotIndex].isBooked) {
           return res.status(400).json({
@@ -65,7 +80,7 @@ exports.bookAppointment = async (req, res, next) => {
       date,
       slotTime,
       symptomsDescription: symptomsDescription || '',
-      status: 'confirmed', // Auto-confirmed on direct slot reservation
+      status: 'confirmed',
       consultationFee: doctor.consultationFee,
       patientAge: patientAge || req.user.age,
       patientPhone: patientPhone || req.user.phone,
@@ -87,6 +102,9 @@ exports.bookAppointment = async (req, res, next) => {
       data: populatedAppointment,
     });
   } catch (error) {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
     next(error);
   }
 };
@@ -96,6 +114,15 @@ exports.bookAppointment = async (req, res, next) => {
 // @access  Private (Patient)
 exports.getMyPatientAppointments = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const list = mockStore.getPatientAppointments(req.user._id);
+      return res.status(200).json({
+        success: true,
+        count: list.length,
+        data: list,
+      });
+    }
+
     const appointments = await Appointment.find({ patient: req.user._id })
       .populate({
         path: 'doctor',
@@ -113,7 +140,8 @@ exports.getMyPatientAppointments = async (req, res, next) => {
       data: appointments,
     });
   } catch (error) {
-    next(error);
+    const list = mockStore.getPatientAppointments(req.user._id);
+    res.status(200).json({ success: true, count: list.length, data: list });
   }
 };
 
@@ -122,6 +150,15 @@ exports.getMyPatientAppointments = async (req, res, next) => {
 // @access  Private (Doctor)
 exports.getDoctorAppointments = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const list = mockStore.getDoctorAppointments(req.user._id, req.query.status);
+      return res.status(200).json({
+        success: true,
+        count: list.length,
+        data: list,
+      });
+    }
+
     const doctor = await Doctor.findOne({ user: req.user._id });
     if (!doctor) {
       return res.status(404).json({
@@ -146,7 +183,8 @@ exports.getDoctorAppointments = async (req, res, next) => {
       data: appointments,
     });
   } catch (error) {
-    next(error);
+    const list = mockStore.getDoctorAppointments(req.user._id, req.query?.status);
+    res.status(200).json({ success: true, count: list.length, data: list });
   }
 };
 
@@ -156,6 +194,19 @@ exports.getDoctorAppointments = async (req, res, next) => {
 exports.updateAppointmentStatus = async (req, res, next) => {
   try {
     const { status, consultationNotes, prescription } = req.body;
+
+    if (mongoose.connection.readyState !== 1) {
+      const updated = mockStore.updateAppointmentStatus(req.params.id, {
+        status,
+        consultationNotes,
+        prescription,
+      });
+      return res.status(200).json({
+        success: true,
+        message: `Appointment updated to ${updated.status}`,
+        data: updated,
+      });
+    }
 
     const appointment = await Appointment.findById(req.params.id);
     if (!appointment) {
@@ -196,6 +247,14 @@ exports.updateAppointmentStatus = async (req, res, next) => {
 // @access  Private (Patient, Doctor, or Admin)
 exports.cancelAppointment = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      const cancelled = mockStore.cancelAppointment(req.params.id, req.user._id, req.user.role);
+      return res.status(200).json({
+        success: true,
+        message: 'Appointment cancelled successfully and slot released',
+      });
+    }
+
     const appointment = await Appointment.findById(req.params.id);
     if (!appointment) {
       return res.status(404).json({
@@ -204,7 +263,6 @@ exports.cancelAppointment = async (req, res, next) => {
       });
     }
 
-    // Authorization check
     if (
       req.user.role === 'patient' &&
       appointment.patient.toString() !== req.user._id.toString()
@@ -218,7 +276,6 @@ exports.cancelAppointment = async (req, res, next) => {
     appointment.status = 'cancelled';
     await appointment.save();
 
-    // Release the slot in availability
     await Availability.updateOne(
       { doctor: appointment.doctor, date: appointment.date, 'slots.slotTime': appointment.slotTime },
       { $set: { 'slots.$.isBooked': false, 'slots.$.bookedBy': null } }

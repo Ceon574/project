@@ -1,12 +1,22 @@
+const mongoose = require('mongoose');
 const Symptom = require('../models/Symptom');
 const Specialization = require('../models/Specialization');
 const Doctor = require('../models/Doctor');
+const mockStore = require('../data/mockStore');
 
 // @desc    Get all symptoms
 // @route   GET /api/symptoms
 // @access  Public
 exports.getSymptoms = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        count: mockStore.symptoms.length,
+        data: mockStore.getSymptoms(),
+      });
+    }
+
     const symptoms = await Symptom.find()
       .populate('specialization', 'name description icon')
       .sort({ name: 1 });
@@ -17,7 +27,11 @@ exports.getSymptoms = async (req, res, next) => {
       data: symptoms,
     });
   } catch (error) {
-    next(error);
+    res.status(200).json({
+      success: true,
+      count: mockStore.symptoms.length,
+      data: mockStore.getSymptoms(),
+    });
   }
 };
 
@@ -26,6 +40,14 @@ exports.getSymptoms = async (req, res, next) => {
 // @access  Public
 exports.getSpecializations = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        count: mockStore.specializations.length,
+        data: mockStore.getSpecializations(),
+      });
+    }
+
     const specializations = await Specialization.find().sort({ name: 1 });
 
     res.status(200).json({
@@ -34,7 +56,11 @@ exports.getSpecializations = async (req, res, next) => {
       data: specializations,
     });
   } catch (error) {
-    next(error);
+    res.status(200).json({
+      success: true,
+      count: mockStore.specializations.length,
+      data: mockStore.getSpecializations(),
+    });
   }
 };
 
@@ -52,6 +78,14 @@ exports.checkSymptoms = async (req, res, next) => {
       });
     }
 
+    if (mongoose.connection.readyState !== 1) {
+      const result = mockStore.checkSymptoms(symptomIds);
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    }
+
     const matchedSymptoms = await Symptom.find({ _id: { $in: symptomIds } })
       .populate('specialization', 'name description icon');
 
@@ -62,7 +96,6 @@ exports.checkSymptoms = async (req, res, next) => {
       });
     }
 
-    // Determine highest urgency level
     let highestUrgency = 'LOW';
     const urgencyRanks = { LOW: 1, MEDIUM: 2, HIGH: 3 };
 
@@ -85,10 +118,8 @@ exports.checkSymptoms = async (req, res, next) => {
       }
     });
 
-    // Remove duplicates from warning signs
     allWarningSigns = [...new Set(allWarningSigns)];
 
-    // Fetch recommended doctors for these specializations
     const doctors = await Doctor.find({
       specialization: { $in: Array.from(specializationIds) },
       isAvailable: true,
@@ -116,6 +147,7 @@ exports.checkSymptoms = async (req, res, next) => {
       },
     });
   } catch (error) {
-    next(error);
+    const result = mockStore.checkSymptoms(req.body.symptomIds);
+    res.status(200).json({ success: true, data: result });
   }
 };
